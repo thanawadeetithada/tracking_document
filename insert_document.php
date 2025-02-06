@@ -2,7 +2,7 @@
 require_once 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $registration_number = $_POST['egistration_number'];
+    $registration_number = $_POST['registration_number'];
     $fullname = $_POST['fullname'];
     $college = $_POST['college'];
     $date_faculty_received = $_POST['date_faculty_received'];
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bind_param("ssssssss", $registration_number, $fullname, $college, $date_faculty_received, $committee_approval_date, $faculty_approval_date, $book_number_HR, $passed_institution);
 
         if ($stmt->execute()) {
-            header("Location: index.php");
+            header("Location: dashboard.php");
             exit();
         } else {
             echo "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " . $stmt->error;

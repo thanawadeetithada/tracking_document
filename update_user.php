@@ -3,13 +3,13 @@ require_once 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id = $_POST['id'];
-    $name = $_POST['name'];
+    $fullname = $_POST['fullname'];
     $email = $_POST['email'];
     $userrole = $_POST['userrole'];
     
-    $sql = "UPDATE users SET name = ?, email = ?, userrole = ? WHERE id = ?";
+    $sql = "UPDATE users SET fullname = ?, email = ?, userrole = ? WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssi", $name, $email, $userrole, $id);
+    $stmt->bind_param("sssi", $fullname, $email, $userrole, $id);
     
     if ($stmt->execute()) {
         header("Location: user_management.php");

@@ -1,27 +1,28 @@
 <?php
 session_start();
+require_once 'db.php';
 
-if (isset($_POST['id']) && isset($_SESSION['user_id'])) {
-    $id = $_POST['id'];
-    $loggedInUserId = $_SESSION['user_id'];
-
-    require_once 'db.php';
-
-    $sql = "DELETE FROM users WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $id);
-
-    if ($stmt->execute()) {
-        if ($id == $loggedInUserId) {
-            echo 'success';  // ถ้าลบผู้ใช้ที่ล็อกอิน
-        } else {
-            echo 'user_deleted';  // ถ้าลบผู้ใช้อื่น
-        }
-    } else {
-        echo 'error';  // ถ้าเกิดข้อผิดพลาดในการลบ
-    }
-
-    $stmt->close();
-    $conn->close();
+if (!isset($_SESSION['user_id']) || !isset($_POST['id'])) {
+    echo 'error';
+    exit();
 }
+
+$user_id = $_SESSION['user_id'];
+$id_to_delete = $_POST['id'];
+
+
+if ($user_id == $id_to_delete) {
+    echo 'user_deleted';
+    exit();
+}
+
+$sql = "DELETE FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $id_to_delete);
+if ($stmt->execute()) {
+    echo 'success';
+} else {
+    echo 'error';
+}
+$stmt->close();
 ?>

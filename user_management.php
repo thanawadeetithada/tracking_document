@@ -1,16 +1,31 @@
 <?php
 session_start();
+require_once 'db.php';
 
-if (!isset($_SESSION['userrole']) || $_SESSION['userrole'] !== 'admin') {
-    header('Location: index.php');
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
     exit();
 }
 
-require_once 'db.php';
+$user_id = $_SESSION['user_id'];
+$sql = "SELECT userrole FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($userrole);
+$stmt->fetch();
+$stmt->close();
 
-$sql = "SELECT * FROM users";
-$result = $conn->query($sql);
+if ($userrole == 'admin') {
+    $sql = "SELECT * FROM users";
+    $result = $conn->query($sql);
+} else {
+    echo "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้";
+    header("Location: index.php");
+    exit();
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -134,20 +149,18 @@ $result = $conn->query($sql);
 <body>
     <div class="navbar navbar-dark bg-dark justify-content-end">
         <div class="nav-item d-flex">
-            <?php if ($isAdmin): ?>
-            <a class="nav-link mr-3" href="index.php"></i>&nbsp;&nbsp;รายการเอกสาร</a>
+            <a class="nav-link mr-3" href="dashboard.php"></i>&nbsp;&nbsp;รายการเอกสาร</a>
             <a class="nav-link" href="logout.php"><i class="fa-solid fa-user"></i>&nbsp;&nbsp;Logout</a>
-            <?php endif; ?>
         </div>
     </div>
-
-
     <div class="card">
+        <?php if (isset($result) && $result->num_rows > 0): ?>
         <div class="header-card">
             <h3 class="text-left">จัดการผู้ใช้งาน</h3><br>
         </div>
+        <?php endif; ?>
         <br>
-        <?php if ($result->num_rows > 0): ?>
+        <?php if (isset($result) && $result->num_rows > 0): ?>
         <div class="table-responsive">
             <table class="table table-bordered">
                 <thead>
@@ -161,8 +174,7 @@ $result = $conn->query($sql);
                 <tbody>
                     <?php while($row = $result->fetch_assoc()): ?>
                     <tr>
-
-                        <td><?php echo htmlspecialchars($row['name']); ?></td>
+                        <td><?php echo htmlspecialchars($row['fullname']); ?></td>
                         <td><?php echo htmlspecialchars($row['email']); ?></td>
                         <td><?php echo htmlspecialchars($row['userrole']); ?></td>
                         <td class="btn-action">
@@ -172,11 +184,9 @@ $result = $conn->query($sql);
                             <a href="#" class="btn btn-danger btn-sm delete-btn" data-id="<?php echo $row['id']; ?>"><i
                                     class="fa-regular fa-trash-can"></i></a>
                         </td>
-
                     </tr>
                     <?php endwhile; ?>
                 </tbody>
-
             </table>
         </div>
         <?php else: ?>
@@ -219,7 +229,7 @@ $result = $conn->query($sql);
 
                         <div class="mb-3">
                             <label for="edit_name" class="col-form-label">ชื่อ-สกุล</label>
-                            <input type="text" class="form-control modal-text" id="edit_name" name="name" required>
+                            <input type="text" class="form-control modal-text" id="edit_name" name="fullname" required>
                         </div>
                         <div class="mb-3">
                             <label for="edit_email" class="col-form-label">อีเมล</label>
@@ -309,109 +319,56 @@ $result = $conn->query($sql);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-$('#exampleModal').on('show.bs.modal', function(event) {
-    var button = $(event.relatedTarget);
-    var recipient = button.data('whatever');
-
-    var modal = $(this);
-    modal.find('.modal-title').text('New message to ' + recipient);
-    modal.find('.modal-body input').val(recipient);
-});
-
-
 $(document).ready(function() {
     $(".edit-btn").on("click", function(e) {
         e.preventDefault();
         var id = $(this).data('id');
         var name = $(this).closest('tr').find('td:nth-child(1)').text();
         var email = $(this).closest('tr').find('td:nth-child(2)').text();
-        var userRolw = $(this).closest('tr').find('td:nth-child(3)').text();
+        var userRole = $(this).closest('tr').find('td:nth-child(3)').text();
 
         $('#edit_id').val(id);
         $('#edit_name').val(name);
         $('#edit_email').val(email);
-        $('#edit_userRole').val(userRolw);
+        $('#edit_userRole').val(userRole);
         $('#editModal').modal('show');
     });
+
     $(".delete-btn").on("click", function(e) {
-    e.preventDefault();
-    var id = $(this).data('id');
-    var name = $(this).closest('tr').find('td:nth-child(1)').text();
-    var email = $(this).closest('tr').find('td:nth-child(2)').text();
-    var rolw = $(this).closest('tr').find('td:nth-child(3)').text(); // แก้จาก 'role' เป็น 'rolw'
+        e.preventDefault();
+        var id = $(this).data('id');
+        var name = $(this).closest('tr').find('td:nth-child(1)').text();
+        var email = $(this).closest('tr').find('td:nth-child(2)').text();
+        var role = $(this).closest('tr').find('td:nth-child(3)').text();
 
-    $('#deleteName').text(name);
-    $('#deleteEmail').text(email);
-    $('#deleteRole').text(rolw); // ใช้ 'rolw' แทน 'role'
+        $('#deleteName').text(name);
+        $('#deleteEmail').text(email);
+        $('#deleteRole').text(role);
 
-    $('#confirmDelete').on('click', function() {
-        $.ajax({
-            url: 'delete_user.php',
-            type: 'POST',
-            data: {
-                id: id
-            },
-            success: function(response) {
-                if (response === 'success') {
-                    $('#deleteModal').modal('hide');
-                    location.reload(); // รีเฟรชหน้า ถ้าลบผู้ใช้ที่ล็อกอิน
-                } else if (response === 'user_deleted') {
-                    $('#deleteModal').modal('hide');
-                } else {
-                    alert('ไม่สามารถลบข้อมูลได้');
+        $('#confirmDelete').on('click', function() {
+            $.ajax({
+                url: 'delete_user.php',
+                type: 'POST',
+                data: {
+                    id: id
+                },
+                success: function(response) {
+                    if (response === 'success') {
+                        $('#deleteModal').modal('hide');
+                        location.reload();
+                    } else if (response === 'user_deleted') {
+                        $('#deleteModal').modal('hide');
+                        alert('คุณไม่สามารถลบผู้ใช้นี้ได้');
+                    } else {
+                        alert('ไม่สามารถลบข้อมูลได้');
+                    }
+                },
+                error: function() {
+                    alert('เกิดข้อผิดพลาดในการลบข้อมูล');
                 }
-            },
-            error: function() {
-                alert('เกิดข้อผิดพลาดในการลบข้อมูล');
-            }
+            });
         });
-    });
-
-    $('#deleteModal').modal('show');
-});
-
-
-});
-
-$(document).ready(function() {
-
-    $('.search-name').on('keyup', function() {
-        var searchValue = $(this).val().toLowerCase();
-        $('table tbody tr').each(function() {
-            var rowName = $(this).find('td:nth-child(2)').text()
-                .toLowerCase();
-            if (rowName.indexOf(searchValue) > -1) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    });
-
-    function sortTableByName() {
-        var rows = $('table tbody tr').get();
-
-        rows.sort(function(a, b) {
-            var nameA = $(a).find('td:nth-child(2)').text()
-                .toLowerCase();
-            var nameB = $(b).find('td:nth-child(2)').text().toLowerCase();
-
-            if (nameA < nameB) {
-                return -1;
-            } else if (nameA > nameB) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
-
-        $.each(rows, function(index, row) {
-            $('table tbody').append(row);
-        });
-    }
-
-    $('#sortNameBtn').on('click', function() {
-        sortTableByName();
+        $('#deleteModal').modal('show');
     });
 });
 </script>
