@@ -1,7 +1,7 @@
 <?php
 require_once 'db.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') { //แก้ไขข้อมูลผู้ใช้งาน  ปุ่มแก้ไขหน้า จัดการ
     $id = $_POST['id'];
     $fullname = $_POST['fullname'];
     $email = $_POST['email'];

@@ -1,7 +1,7 @@
 <?php
 require_once 'db.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {    //เพิ่มข้อมูลลง database การทำงานท้งหมดของ ปุ่มเพิ่มข้อมูล
     $registration_number = $_POST['registration_number'];
     $fullname = $_POST['fullname'];
     $college = $_POST['college'];
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bind_param("ssssssss", $registration_number, $fullname, $college, $date_faculty_received, $committee_approval_date, $faculty_approval_date, $book_number_HR, $passed_institution);
 
         if ($stmt->execute()) {
-            header("Location: dashboard.php");
+            header("Location: dashboard.php");   //กดตกลงแล้วไปหน้า dashboard (ตารางข้อมูล)
             exit();
         } else {
             echo "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " . $stmt->error;

@@ -2,7 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
+ ///ต่อกับ local database
 $servername = "localhost";
 $username = "root"; 
 $password = "";

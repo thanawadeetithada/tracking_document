@@ -2,19 +2,24 @@
 session_start();
 require_once 'db.php'; 
 
+// ตรวจสอบว่าผู้ใช้เข้าสู่ระบบหรือไม่ ถ้าไม่ให้กลับไปที่หน้า index.php
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
 
+// ดึงข้อมูลผู้ใช้จาก session
 $userId = $_SESSION['user_id'];
 $fullName = $_SESSION['fullname'];
 $email = $_SESSION['user_email'];
 $userRole = $_SESSION['user_role'];
 
+// ตรวจสอบสิทธิ์ของผู้ใช้
 if ($userRole == 'admin') {
+    // ถ้าเป็น admin ให้ดึงข้อมูลทั้งหมด
     $sql = "SELECT * FROM faculty_progress";
 } elseif ($userRole == 'user') {
+    // ถ้าเป็น user ให้ดึงข้อมูลเฉพาะของตัวเอง โดยตัดช่องว่างออกเพื่อตรวจสอบชื่อ
     $fullNameTrimmed = str_replace(' ', '', $fullName);
     $sql = "SELECT * FROM faculty_progress WHERE REPLACE(TRIM(fullname), ' ', '') = ?";
 }
@@ -29,7 +34,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="th">
 
@@ -37,10 +41,13 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>บัญชีรายชื่อ</title>
+    <!-- ใช้ Bootstrap และ FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     <style>
+    /* ปรับแต่ง UI */
     body {
         background-color: #f9fafc;
         font-family: 'Arial', sans-serif;
@@ -172,6 +179,7 @@ $result = $stmt->get_result();
 </head>
 
 <body>
+    <!-- Navbar -->
     <div class="navbar navbar-dark bg-dark justify-content-end">
         <div class="nav-item d-flex">
             <?php if ($userRole != 'user'): ?>
@@ -181,6 +189,7 @@ $result = $stmt->get_result();
         </div>
     </div>
 
+    <!-- ส่วนแสดงข้อมูล -->
     <div class="card">
         <div class="header-card">
             <h3 class="text-left">รายการเอกสาร</h3><br>
@@ -206,6 +215,7 @@ $result = $stmt->get_result();
             </div>
         </div>
         <br>
+        <!-- ตารางแสดงข้อมูล -->
         <div class="table-responsive">
             <table class="table table-bordered">
                 <thead>
@@ -432,8 +442,8 @@ $result = $stmt->get_result();
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
+    //โชว์ modal
 $('#exampleModal').on('show.bs.modal', function(event) {
     var button = $(event.relatedTarget);
     var recipient = button.data('whatever');
@@ -443,28 +453,28 @@ $('#exampleModal').on('show.bs.modal', function(event) {
     modal.find('.modal-body input').val(recipient);
 });
 
-
 $(document).ready(function() {
     $(document).ready(function() {
+        //แก้ไข
         $(".edit-btn").on("click", function(e) {
             e.preventDefault();
             var id = $(this).data('id');
             var registration_number = $(this).closest('tr').find('td:nth-child(1)').text()
-                .trim(); // เพิ่ม trim
+                .trim();
             var fullname = $(this).closest('tr').find('td:nth-child(2)').text()
-                .trim(); // เพิ่ม trim
+                .trim();
             var college = $(this).closest('tr').find('td:nth-child(3)').text()
-                .trim(); // เพิ่ม trim
+                .trim();
             var date_faculty_received = $(this).closest('tr').find('td:nth-child(4)').text()
-                .trim(); // เพิ่ม trim
+                .trim();
             var committee_approval_date = $(this).closest('tr').find('td:nth-child(5)').text()
-                .trim(); // เพิ่ม trim
+                .trim();
             var faculty_approval_date = $(this).closest('tr').find('td:nth-child(6)').text()
-                .trim(); // เพิ่ม trim
+                .trim();
             var book_number_HR = $(this).closest('tr').find('td:nth-child(7)').text()
-                .trim(); // เพิ่ม trim
+                .trim();
             var passed_institution = $(this).closest('tr').find('td:nth-child(8)').text()
-                .trim(); // เพิ่ม trim
+                .trim();
 
             function formatDateToInput(dateString) {
                 let dateParts = dateString.split('/');
@@ -490,7 +500,7 @@ $(document).ready(function() {
             $('#editModal').modal('show');
         });
     });
-
+//ลบ
     $(".delete-btn").on("click", function(e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -529,7 +539,7 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-
+//ช่องค้นหา
     $('.search-name').on('keyup', function() {
         var searchValue = $(this).val().toLowerCase();
         $('table tbody tr').each(function() {

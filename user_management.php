@@ -1,8 +1,8 @@
 <?php
-session_start();
-require_once 'db.php';
+session_start();   //เรียก session
+require_once 'db.php'; //ต่อ database
 
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'])) {  //login
     header("Location: index.php");
     exit();
 }
@@ -16,12 +16,12 @@ $stmt->bind_result($userrole);
 $stmt->fetch();
 $stmt->close();
 
-if ($userrole == 'admin') {
-    $sql = "SELECT * FROM users";
+if ($userrole == 'admin') {  //เช็ค role admin
+    $sql = "SELECT * FROM users";  //admin เรียกทุกข้อมูล
     $result = $conn->query($sql);
 } else {
-    echo "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้";
-    header("Location: index.php");
+    echo "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้";   //ถ้าไม่ใช่ admin ไปหน้า login
+    header("Location: index.php"); 
     exit();
 }
 ?>
@@ -162,6 +162,7 @@ if ($userrole == 'admin') {
         <br>
         <?php if (isset($result) && $result->num_rows > 0): ?>
         <div class="table-responsive">
+            <!-- ตาราง -->
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -320,6 +321,7 @@ if ($userrole == 'admin') {
 
 <script>
 $(document).ready(function() {
+    // ปุ่มแก้ไข
     $(".edit-btn").on("click", function(e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -333,6 +335,7 @@ $(document).ready(function() {
         $('#edit_userRole').val(userRole);
         $('#editModal').modal('show');
     });
+    // ปุ่มลบ
 
     $(".delete-btn").on("click", function(e) {
         e.preventDefault();

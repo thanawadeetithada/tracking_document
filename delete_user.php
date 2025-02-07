@@ -1,6 +1,6 @@
-<?php
-session_start();
-require_once 'db.php';
+<?php  // ลบข้อมูลหน้าจัดการ
+session_start();   //เรียก session
+require_once 'db.php'; //ต่อกบ database
 
 if (!isset($_SESSION['user_id']) || !isset($_POST['id'])) {
     echo 'error';

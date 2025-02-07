@@ -1,18 +1,18 @@
 <?php
 include('db.php');
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {    //ลงทะเบียนผู้ใช้งาน
     $fullname = $_POST['fullname'];
     $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    if ($password != $confirm_password) {
-        $error_message = "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน";
+    if ($password != $confirm_password) {  //เช็ครหัสผ่าน คอนเฟิร์มรหัสผ่านให้ตรงกัน
+        $error_message = "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน"; 
     } else {
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);  //แปลงเป็น hashed_password
 
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");  //เช็ค Email ซ้ำ
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $userrole = 'user';
 
-            $stmt = $conn->prepare("INSERT INTO users (fullname, email, password, userrole) VALUES (?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO users (fullname, email, password, userrole) VALUES (?, ?, ?, ?)");  //เพิ่มข้อมูลลง database
             $stmt->bind_param("ssss", $fullname, $email, $hashed_password, $userrole);
 
             if ($stmt->execute()) {
@@ -128,6 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <br>
         <h2 class="login-title">ลงทะเบียนผู้ใช้งานใหม่</h2>
         <div class="login-container">
+            <!-- โชว์ error จากที่เขียนเช็คไว้ บรรทัด 11, 21-->
             <?php if (!empty($error_message)): ?>
             <div class="alert alert-danger" role="alert">
                 <?php echo $error_message; ?>
@@ -153,7 +154,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="password" class="form-control" id="confirm_password" name="confirm_password" required
                         value="">
                 </div>
-                <button type="submit" class="btn btn-primary">ลงทะเบียน</button>
+                <!-- ปุ่มเข้าสู่ระบบ -->
+                <button type="submit" class="btn btn-primary">ลงทะเบียน</button>   
             </form>
 
             <p>

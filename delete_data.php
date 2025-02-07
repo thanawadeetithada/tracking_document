@@ -1,4 +1,4 @@
-<?php
+<?php   // ลบข้อมูลในตาราง
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
     require_once 'db.php';

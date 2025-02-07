@@ -1,7 +1,7 @@
 <?php
 require_once 'db.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {   //แก้ไขข้อมูล  ปุ่มแก้ไขหน้า dashboard
     $id = $_POST['id'];
     $registration_number = $_POST['registration_number'];
     $fullname = $_POST['fullname'];
