@@ -2,6 +2,7 @@
 include('db.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {    //ลงทะเบียนผู้ใช้งาน
+    $prefix = $_POST['prefix'];
     $fullname = $_POST['fullname'];
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -22,8 +23,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {    //ลงทะเบียนผ�
         } else {
             $userrole = 'user';
 
-            $stmt = $conn->prepare("INSERT INTO users (fullname, email, password, userrole) VALUES (?, ?, ?, ?)");  //เพิ่มข้อมูลลง database
-            $stmt->bind_param("ssss", $fullname, $email, $hashed_password, $userrole);
+            $stmt = $conn->prepare("INSERT INTO users (prefix, fullname, email, password, userrole) VALUES (?, ?, ?, ?, ?)");  //เพิ่มข้อมูลลง database
+            $stmt->bind_param("sssss", $prefix, $fullname, $email, $hashed_password, $userrole);
 
             if ($stmt->execute()) {
                 header("Location: index.php?success=1");
@@ -136,6 +137,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {    //ลงทะเบียนผ�
             <?php endif; ?>
             <form method="POST" action="register.php">
                 <div class="form-group">
+                    <label for="prefix">คำนำหน้าชื่อ</label>
+                    <select class="form-control" id="prefix" name="prefix" required>
+                        <option value="">เลือกคำนำหน้า</option>
+                        <option value="นาย" <?php echo (isset($prefix) && $prefix == "นาย") ? "selected" : ""; ?>>นาย
+                        </option>
+                        <option value="นาง" <?php echo (isset($prefix) && $prefix == "นาง") ? "selected" : ""; ?>>นาง
+                        </option>
+                        <option value="นางสาว" <?php echo (isset($prefix) && $prefix == "นางสาว") ? "selected" : ""; ?>>
+                            นางสาว</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="fullname">ชื่อ-สกุล</label>
                     <input type="text" class="form-control" id="fullname" name="fullname" required
                         value="<?php echo isset($fullname) ? $fullname : ''; ?>">
@@ -155,7 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {    //ลงทะเบียนผ�
                         value="">
                 </div>
                 <!-- ปุ่มเข้าสู่ระบบ -->
-                <button type="submit" class="btn btn-primary">ลงทะเบียน</button>   
+                <button type="submit" class="btn btn-primary">ลงทะเบียน</button>
             </form>
 
             <p>

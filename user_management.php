@@ -16,11 +16,11 @@ $stmt->bind_result($userrole);
 $stmt->fetch();
 $stmt->close();
 
-if ($userrole == 'admin') {  //เช็ค role admin
-    $sql = "SELECT * FROM users";  //admin เรียกทุกข้อมูล
+if ($userrole == 'admin' || $userrole == 'superadmin') {  //เช็ค role admin
+    $sql = "SELECT * FROM users";  //admin/superadmin เรียกทุกข้อมูล
     $result = $conn->query($sql);
 } else {
-    echo "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้";   //ถ้าไม่ใช่ admin ไปหน้า login
+    echo "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้";   //ถ้าไม่ใช่ admin หรือ superadmin ไปหน้า login
     header("Location: index.php"); 
     exit();
 }
@@ -175,15 +175,20 @@ if ($userrole == 'admin') {  //เช็ค role admin
                 <tbody>
                     <?php while($row = $result->fetch_assoc()): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($row['fullname']); ?></td>
+                        <td><?php echo htmlspecialchars($row['prefix']); ?>
+                            <?php echo htmlspecialchars($row['fullname']); ?></td>
                         <td><?php echo htmlspecialchars($row['email']); ?></td>
                         <td><?php echo htmlspecialchars($row['userrole']); ?></td>
                         <td class="btn-action">
-                            <a href="#" class="btn btn-warning btn-sm edit-btn" data-id="<?php echo $row['id']; ?>"><i
-                                    class="fa-solid fa-pencil"></i></a>
+                            <a href="#" class="btn btn-warning btn-sm edit-btn" data-id="<?php echo $row['id']; ?>"
+                                <?php if ($userrole == 'admin' && $row['userrole'] == 'superadmin') echo 'style="visibility:hidden;"'; ?>>
+                                <i class="fa-solid fa-pencil"></i>
+                            </a>
                             &nbsp;&nbsp;
-                            <a href="#" class="btn btn-danger btn-sm delete-btn" data-id="<?php echo $row['id']; ?>"><i
-                                    class="fa-regular fa-trash-can"></i></a>
+                            <a href="#" class="btn btn-danger btn-sm delete-btn" data-id="<?php echo $row['id']; ?>"
+                                <?php if ($userrole == 'admin' && $row['userrole'] == 'superadmin') echo 'style="visibility:hidden;"'; ?>>
+                                <i class="fa-regular fa-trash-can"></i>
+                            </a>
                         </td>
                     </tr>
                     <?php endwhile; ?>
@@ -227,7 +232,14 @@ if ($userrole == 'admin') {  //เช็ค role admin
                 <div class="modal-body">
                     <form method="post" action="update_user.php">
                         <input type="hidden" id="edit_id" name="id">
-
+                        <div class="mb-3">
+                            <label for="edit_prefix" class="col-form-label">คำนำหน้าชื่อ</label>
+                            <select class="form-control modal-text" id="edit_prefix" name="prefix" required>
+                                <option value="นาย">นาย</option>
+                                <option value="นาง">นาง</option>
+                                <option value="นางสาว">นางสาว</option>
+                            </select>
+                        </div>
                         <div class="mb-3">
                             <label for="edit_name" class="col-form-label">ชื่อ-สกุล</label>
                             <input type="text" class="form-control modal-text" id="edit_name" name="fullname" required>
@@ -239,6 +251,7 @@ if ($userrole == 'admin') {  //เช็ค role admin
                         <div class="mb-3">
                             <label for="edit_userRole" class="col-form-label">สถานะ</label>
                             <select class="form-control modal-text" id="edit_userRole" name="userrole" required>
+                                <option value="superadmin">Superadmin</option>
                                 <option value="admin">Admin</option>
                                 <option value="user">User</option>
                             </select>
@@ -325,16 +338,24 @@ $(document).ready(function() {
     $(".edit-btn").on("click", function(e) {
         e.preventDefault();
         var id = $(this).data('id');
-        var name = $(this).closest('tr').find('td:nth-child(1)').text();
-        var email = $(this).closest('tr').find('td:nth-child(2)').text();
-        var userRole = $(this).closest('tr').find('td:nth-child(3)').text();
 
+        var fullText = $(this).closest('tr').find('td:nth-child(1)').text().trim();
+        var splitText = fullText.split(/\s+/); // แยกด้วยช่องว่าง
+        var prefix = splitText.length > 1 ? splitText[0].trim() : ""; // คำนำหน้า
+        var name = splitText.slice(1).join(" ").trim(); // ชื่อ-สกุลที่เหลือ
+
+        var email = $(this).closest('tr').find('td:nth-child(2)').text().trim();
+        var userRole = $(this).closest('tr').find('td:nth-child(3)').text().trim();
+
+        // ใส่ค่าลงฟอร์มแก้ไข
         $('#edit_id').val(id);
+        $('#edit_prefix').val(prefix); // กำหนดค่า prefix ที่แยกออกมา
         $('#edit_name').val(name);
         $('#edit_email').val(email);
         $('#edit_userRole').val(userRole);
         $('#editModal').modal('show');
     });
+
     // ปุ่มลบ
 
     $(".delete-btn").on("click", function(e) {

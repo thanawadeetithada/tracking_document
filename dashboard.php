@@ -15,7 +15,7 @@ $email = $_SESSION['user_email'];
 $userRole = $_SESSION['user_role'];
 
 // ตรวจสอบสิทธิ์ของผู้ใช้
-if ($userRole == 'admin') {
+if ($userRole == 'admin' || $userRole == 'superadmin') {
     // ถ้าเป็น admin ให้ดึงข้อมูลทั้งหมด
     $sql = "SELECT * FROM faculty_progress";
 } elseif ($userRole == 'user') {
