@@ -1,19 +1,23 @@
 <?php
 include('db.php');
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require 'vendor/autoload.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {    //ลงทะเบียนผู้ใช้งาน
+if ($_SERVER["REQUEST_METHOD"] == "POST") {    
     $prefix = $_POST['prefix'];
     $fullname = $_POST['fullname'];
     $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    if ($password != $confirm_password) {  //เช็ครหัสผ่าน คอนเฟิร์มรหัสผ่านให้ตรงกัน
+    if ($password != $confirm_password) {  
         $error_message = "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน"; 
     } else {
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);  //แปลงเป็น hashed_password
-
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");  //เช็ค Email ซ้ำ
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        
+        // ตรวจสอบว่าอีเมลนี้ถูกใช้งานแล้วหรือไม่
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -22,21 +26,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {    //ลงทะเบียนผ�
             $error_message = "อีเมลนี้มีผู้ใช้งานแล้ว";
         } else {
             $userrole = 'user';
+            $verification_token = bin2hex(random_bytes(32)); // สร้างโทเค็นสุ่ม
 
-            $stmt = $conn->prepare("INSERT INTO users (prefix, fullname, email, password, userrole) VALUES (?, ?, ?, ?, ?)");  //เพิ่มข้อมูลลง database
-            $stmt->bind_param("sssss", $prefix, $fullname, $email, $hashed_password, $userrole);
+            // ส่งค่า email_verified เป็น 0 โดยตรง
+            $stmt = $conn->prepare("INSERT INTO users (prefix, fullname, email, password, userrole, email_verified, verification_token) VALUES (?, ?, ?, ?, ?, 0, ?)");
+            $stmt->bind_param("ssssss", $prefix, $fullname, $email, $hashed_password, $userrole, $verification_token);
 
             if ($stmt->execute()) {
-                header("Location: index.php?success=1");
-                exit();
+                if (sendVerificationEmail($email, $verification_token)) { // ส่งอีเมลยืนยัน
+                    header("Location: index.php?success=1");
+                    exit();
+                } else {
+                    $error_message = "เกิดข้อผิดพลาดในการส่งอีเมลยืนยัน กรุณาลองใหม่";
+                }
             } else {
                 $error_message = "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่";
             }
         }
         $stmt->close();
     }
-
     $conn->close();
+}
+
+// ✅ ฟังก์ชันส่งอีเมลยืนยัน (ปรับปรุงใหม่)
+function sendVerificationEmail($email, $token) {
+    $mail = new PHPMailer(true);
+    try {
+        // ตั้งค่า SMTP
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com'; // ใช้ Gmail SMTP
+        $mail->SMTPAuth = true;
+        $mail->Username = 'mitinventor015@gmail.com'; // 🔹 เปลี่ยนเป็นอีเมลของคุณ
+        $mail->Password = 'etptordrjdzhhsas'; // 🔹 ใช้ App Password แทนรหัสผ่านจริง
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+
+        // ตั้งค่าผู้ส่งและผู้รับ
+        $mail->setFrom('mitinventor015@gmail.com', 'ระบบติดตามความก้าวหน้าตำแหน่งทางวิชาการ'); 
+        $mail->addAddress($email);
+
+        // ✅ ใช้ `urlencode()` ป้องกันปัญหาลิงก์เสีย
+        $verification_link = "http://localhost/tracking_document/verify_email.php?token=" . urlencode($token);
+
+        // ตั้งค่าอีเมล
+        $mail->isHTML(true);
+        $mail->CharSet = "UTF-8"; // รองรับภาษาไทย
+        $mail->Subject = "ยืนยันอีเมลของคุณ";
+        $mail->Body = "<p>สวัสดี,</p>
+                       <p>กรุณาคลิกลิงก์ด้านล่างเพื่อยืนยันอีเมลของคุณ:</p>
+                       <p><a href='$verification_link'>$verification_link</a></p>
+                       <p>หากคุณไม่ได้สมัครใช้งาน โปรดละเว้นอีเมลนี้</p>";
+
+        // ✅ ส่งอีเมลและเช็คผลลัพธ์
+        if ($mail->send()) {
+            return true; // ส่งอีเมลสำเร็จ
+        } else {
+            error_log("❌ ไม่สามารถส่งอีเมลได้: {$mail->ErrorInfo}"); // บันทึก Log error
+            return false;
+        }
+    } catch (Exception $e) {
+        error_log("❌ PHPMailer Error: {$e->getMessage()}"); // บันทึก Log error
+        return false;
+    }
 }
 ?>
 

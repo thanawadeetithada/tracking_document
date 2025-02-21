@@ -233,6 +233,8 @@ $result = $stmt->get_result();
                         <th>เลขที่หนังสือ<br>นำส่งทรัพยากรบุคคล</th>
                         <?php if ($userRole == 'admin' || $userRole == 'superadmin'): ?>
                         <th>ผ่านมติสภาสถาบัน<br>พระบรมราชชนก</th>
+                        <?php endif; ?>
+                        <?php if ($userRole == 'superadmin'): ?>
                         <th>จัดการ</th>
                         <?php endif; ?>
                     </tr>
@@ -268,18 +270,18 @@ $result = $stmt->get_result();
                     ?>
                         </td>
                         <td>
-                            <?php if (!empty($row['book_number_HR_date']) && $row['book_number_HR_date'] !== '0000-00-00'): ?>
-                            <?php echo date('d/m/Y', strtotime($row['book_number_HR_date'])); ?><br>
-                            <?php endif; ?>
+                            <?php echo !empty($row['book_number_HR_date']) && $row['book_number_HR_date'] !== '0000-00-00' 
+                                    ? date('d/m/Y', strtotime($row['book_number_HR_date'])): ''; ?><br>
                             <?php echo !empty($row['book_number_HR']) ? htmlspecialchars($row['book_number_HR']) : 'อยู่ระหว่างการตรวจสอบ'; ?>
                         </td>
                         <?php if ($userRole == 'admin' || $userRole == 'superadmin'): ?>
                         <td>
-                            <?php if (!empty($row['passed_institution_date']) && $row['passed_institution_date'] !== '0000-00-00'): ?>
-                            <?php echo date('d/m/Y', strtotime($row['passed_institution_date'])); ?><br>
-                            <?php endif; ?>
+                            <?php echo !empty($row['passed_institution_date']) && $row['passed_institution_date'] !== '0000-00-00' 
+                                    ? date('d/m/Y', strtotime($row['passed_institution_date'])): ''; ?><br>
                             <?php echo !empty($row['passed_institution']) ? htmlspecialchars($row['passed_institution']) : 'อยู่ระหว่างการตรวจสอบ'; ?>
                         </td>
+                        <?php endif; ?>
+                        <?php if ($userRole == 'superadmin'): ?>
                         <td class="btn-action">
                             <a href="#" class="btn btn-warning btn-sm edit-btn" data-id="<?php echo $row['id']; ?>"><i
                                     class="fa-solid fa-pencil"></i></a>

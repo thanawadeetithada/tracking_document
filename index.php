@@ -1,37 +1,48 @@
 <?php
-session_start();  //เรียก session
+session_start();  // เรียกใช้ session
 
-include('db.php');  // conncect database
-if ($_SERVER["REQUEST_METHOD"] == "POST") { // POST login  ใช้ email / password
+include('db.php');  // เชื่อมต่อฐานข้อมูล
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") { // ตรวจสอบหากเป็นคำขอแบบ POST
     $email = $_POST['email'];
     $password = $_POST['password']; 
+
+    // ตรวจสอบข้อมูลผู้ใช้จากฐานข้อมูล
     $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
 
-    if ($result->num_rows > 0) {   //เก็บ session
-        $user = $result->fetch_assoc();
+    if ($user) {   
+        // ตรวจสอบรหัสผ่าน
         if (password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_email'] = $user['email'];
-            $_SESSION['user_role'] = $user['userrole'];
-            $_SESSION['fullname'] = $user['fullname']; 
             
-            header("Location: dashboard.php");
-            exit();
+            // ตรวจสอบว่าอีเมลได้รับการยืนยันหรือยัง
+            if ($user['email_verified'] == 0) {
+                $error_message = "❌ กรุณายืนยันอีเมลของคุณก่อนเข้าสู่ระบบ";
+            } else {
+                // ตั้งค่า session สำหรับผู้ใช้
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['user_role'] = $user['userrole'];
+                $_SESSION['fullname'] = $user['fullname']; 
+                
+                header("Location: dashboard.php"); // ไปที่หน้า Dashboard
+                exit();
+            }
         } else {
-            $error_message = "รหัสผ่านไม่ถูกต้อง";
+            $error_message = "❌ รหัสผ่านไม่ถูกต้อง";
         }
     } else {
-        $error_message = "อีเมลนี้ไม่ได้ลงทะเบียน";
+        $error_message = "❌ อีเมลนี้ไม่ได้ลงทะเบียน";
     }
 
     $stmt->close();
 }
+
 $conn->close();
 ?>
-
 <!DOCTYPE html>
 <html lang="th">
 
@@ -114,7 +125,7 @@ $conn->close();
 <body>
     <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
     <script>
-    alert("ลงทะเบียนสำเร็จแล้ว");
+    alert("ลงทะเบียนสำเร็จแล้ว กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ");
     </script>
     <?php endif; ?>
     <div class="login-wrapper">
