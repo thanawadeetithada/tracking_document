@@ -118,8 +118,8 @@ $conn->close();
     </script>
     <?php endif; ?>
     <div class="login-wrapper">
-        <i class="fa-regular fa-file-lines"></i>
-        <br>
+    <img src="img/logo.png" alt="เอกสาร" >
+    <br>
         <h2 class="login-title">ระบบติดตามความก้าวหน้า<br>ตำแหน่งทางวิชาการ</h2>
 
         <div class="login-container">

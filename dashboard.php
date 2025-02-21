@@ -220,18 +220,18 @@ $result = $stmt->get_result();
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <?php if ($userRole == 'admin'): ?>
+                        <?php if ($userRole == 'admin' || $userRole == 'superadmin'): ?>
                         <th>เลขทะเบียนหนังสือ</th>
                         <?php endif; ?>
                         <th>ชื่อ-สกุล</th>
-                        <?php if ($userRole == 'admin'): ?>
+                        <?php if ($userRole == 'admin' || $userRole == 'superadmin'): ?>
                         <th>วิทยาลัย</th>
                         <?php endif; ?>
                         <th>วัน / เดือน / ปี<br>คณะรับเล่มผลงานทางวิชาการ</th>
                         <th>วัน / เดือน / ปี<br>ผ่านอนุกรรมการตรวจสอบ</th>
                         <th>วัน / เดือน / ปี<br>ผ่านคณะกรรมการประจำ</th>
                         <th>เลขที่หนังสือ<br>นำส่งทรัพยากรบุคคล</th>
-                        <?php if ($userRole == 'admin'): ?>
+                        <?php if ($userRole == 'admin' || $userRole == 'superadmin'): ?>
                         <th>ผ่านมติสภาสถาบัน<br>พระบรมราชชนก</th>
                         <th>จัดการ</th>
                         <?php endif; ?>
@@ -241,13 +241,14 @@ $result = $stmt->get_result();
                     <?php if ($result->num_rows > 0): ?>
                     <?php while ($row = $result->fetch_assoc()): ?>
                     <tr>
-                        <?php if ($userRole == 'admin'): ?>
+                        <?php if ($userRole == 'admin' || $userRole == 'superadmin'): ?>
                         <td><?php echo htmlspecialchars($row['registration_number']); ?></td>
                         <?php endif; ?>
 
-                        <td><?php echo !empty($row['fullname']) ? htmlspecialchars($row['fullname']) : '-'; ?></td>
+                        <td><?php echo htmlspecialchars($row['prefix']) ?>
+                            <?php echo !empty($row['fullname']) ? htmlspecialchars($row['fullname']) : '-'; ?></td>
 
-                        <?php if ($userRole == 'admin'): ?>
+                        <?php if ($userRole == 'admin' || $userRole == 'superadmin'): ?>
                         <td><?php echo !empty($row['college']) ? htmlspecialchars($row['college']) : '-'; ?></td>
                         <?php endif; ?>
 
@@ -266,10 +267,18 @@ $result = $stmt->get_result();
                         date('d/m/Y', strtotime($row['faculty_approval_date'])) : 'อยู่ระหว่างการตรวจสอบ';
                     ?>
                         </td>
-                        <td><?php echo !empty($row['book_number_HR']) ? htmlspecialchars($row['book_number_HR']) : 'อยู่ระหว่างการตรวจสอบ'; ?>
+                        <td>
+                            <?php if (!empty($row['book_number_HR_date']) && $row['book_number_HR_date'] !== '0000-00-00'): ?>
+                            <?php echo date('d/m/Y', strtotime($row['book_number_HR_date'])); ?><br>
+                            <?php endif; ?>
+                            <?php echo !empty($row['book_number_HR']) ? htmlspecialchars($row['book_number_HR']) : 'อยู่ระหว่างการตรวจสอบ'; ?>
                         </td>
-                        <?php if ($userRole == 'admin'): ?>
-                        <td><?php echo !empty($row['passed_institution']) ? htmlspecialchars($row['passed_institution']) : 'อยู่ระหว่างการตรวจสอบ'; ?>
+                        <?php if ($userRole == 'admin' || $userRole == 'superadmin'): ?>
+                        <td>
+                            <?php if (!empty($row['passed_institution_date']) && $row['passed_institution_date'] !== '0000-00-00'): ?>
+                            <?php echo date('d/m/Y', strtotime($row['passed_institution_date'])); ?><br>
+                            <?php endif; ?>
+                            <?php echo !empty($row['passed_institution']) ? htmlspecialchars($row['passed_institution']) : 'อยู่ระหว่างการตรวจสอบ'; ?>
                         </td>
                         <td class="btn-action">
                             <a href="#" class="btn btn-warning btn-sm edit-btn" data-id="<?php echo $row['id']; ?>"><i
@@ -277,8 +286,8 @@ $result = $stmt->get_result();
                             &nbsp;&nbsp;
                             <a href="#" class="btn btn-danger btn-sm delete-btn" data-id="<?php echo $row['id']; ?>"><i
                                     class="fa-regular fa-trash-can"></i></a>
-                            <?php endif; ?>
                         </td>
+                        <?php endif; ?>
                     </tr>
                     <?php endwhile; ?>
                     <?php else: ?>
@@ -329,12 +338,38 @@ $result = $stmt->get_result();
                                 name="registration_number" required>
                         </div>
                         <div class="mb-3">
+                            <label for="edit_prefix">คำนำหน้าชื่อ</label>
+                            <select class="form-control" id="edit_prefix" name="prefix" required>
+                                <option value="">เลือกคำนำหน้า</option>
+                                <option value="นาย"
+                                    <?php echo (isset($prefix) && $prefix == "นาย") ? "selected" : ""; ?>>นาย
+                                </option>
+                                <option value="นาง"
+                                    <?php echo (isset($prefix) && $prefix == "นาง") ? "selected" : ""; ?>>นาง
+                                </option>
+                                <option value="นางสาว"
+                                    <?php echo (isset($prefix) && $prefix == "นางสาว") ? "selected" : ""; ?>>
+                                    นางสาว</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="edit_fullname" class="col-form-label">ชื่อ-สกุล</label>
                             <input class="form-control modal-text" id="edit_fullname" name="fullname">
                         </div>
                         <div class="mb-3">
                             <label for="edit_college" class="col-form-label">วิทยาลัย</label>
-                            <input type="text" class="form-control modal-text" id="edit_college" name="college">
+                            <select class="form-control modal-text" id="edit_college" name="college">
+                                <option value="-">กรุณาเลือกวิทยาลัย</option>
+                                <option value="วสส.สุพรรณ">วสส.สุพรรณ</option>
+                                <option value="วสส.ตรัง">วสส.ตรัง</option>
+                                <option value="วสส.ยะลา">วสส.ยะลา</option>
+                                <option value="วทก.">วทก.</option>
+                                <option value="วสส.ชลบุรี">วสส.ชลบุรี</option>
+                                <option value="วสส.พิษณุโลก">วสส.พิษณุโลก</option>
+                                <option value="วสส.อุบลราชธานี">วสส.อุบลราชธานี</option>
+                                <option value="วสส.ขอนแก่น">วสส.ขอนแก่น</option>
+                                <option value="ว อภัยภูเบศ">ว อภัยภูเบศ</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="edit_date_faculty_received" class="col-form-label">วัน / เดือน / ปี
@@ -357,14 +392,24 @@ $result = $stmt->get_result();
                         <div class="mb-3">
                             <label for="edit_book_number_HR" class="col-form-label">เลขที่หนังสือ
                                 นำส่งทรัพยากรบุคคล</label>
-                            <input type="text" class="form-control modal-text" id="edit_book_number_HR"
-                                name="book_number_HR">
+                            <div class="d-flex flex-column flex-md-row align-items-center gap-2">
+                                <input type="date" class="form-control modal-text" id="edit_book_number_HR_date"
+                                    name="book_number_HR_date">
+
+                                <input type="text" class="form-control modal-text" id="edit_book_number_HR"
+                                    name="book_number_HR">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="edit_passed_institution"
                                 class="col-form-label">ผ่านมติสภาสถาบันพระบรมราชชนก</label>
-                            <input type="text" class="form-control modal-text" id="edit_passed_institution"
-                                name="passed_institution">
+                            <div class="d-flex flex-column flex-md-row align-items-center gap-2">
+                                <input type="date" class="form-control modal-text" id="edit_passed_institution_date"
+                                    name="passed_institution_date">
+
+                                <input type="text" class="form-control modal-text" id="edit_passed_institution"
+                                    name="passed_institution">
+                            </div>
                         </div>
 
                         <div class="modal-footer">
@@ -392,12 +437,38 @@ $result = $stmt->get_result();
                                 name="registration_number" required>
                         </div>
                         <div class="mb-3">
+                            <label for="prefix">คำนำหน้าชื่อ</label>
+                            <select class="form-control" id="prefix" name="prefix" required>
+                                <option value="">เลือกคำนำหน้า</option>
+                                <option value="นาย"
+                                    <?php echo (isset($prefix) && $prefix == "นาย") ? "selected" : ""; ?>>นาย
+                                </option>
+                                <option value="นาง"
+                                    <?php echo (isset($prefix) && $prefix == "นาง") ? "selected" : ""; ?>>นาง
+                                </option>
+                                <option value="นางสาว"
+                                    <?php echo (isset($prefix) && $prefix == "นางสาว") ? "selected" : ""; ?>>
+                                    นางสาว</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="fullname" class="col-form-label">ชื่อ-สกุล</label>
-                            <input class="form-control modal-text" id="fullname" name="fullname"></input>
+                            <input class="form-control modal-text" id="fullname" name="fullname" required></input>
                         </div>
                         <div class="mb-3">
                             <label for="college" class="col-form-label">วิทยาลัย</label>
-                            <input type="text" class="form-control modal-text" id="college" name="college">
+                            <select class="form-control modal-text" id="college" name="college">
+                                <option value="">กรุณาเลือกวิทยาลัย</option>
+                                <option value="วสส.สุพรรณ">วสส.สุพรรณ</option>
+                                <option value="วสส.ตรัง">วสส.ตรัง</option>
+                                <option value="วสส.ยะลา">วสส.ยะลา</option>
+                                <option value="วทก.">วทก.</option>
+                                <option value="วสส.ชลบุรี">วสส.ชลบุรี</option>
+                                <option value="วสส.พิษณุโลก">วสส.พิษณุโลก</option>
+                                <option value="วสส.อุบลราชธานี">วสส.อุบลราชธานี</option>
+                                <option value="วสส.ขอนแก่น">วสส.ขอนแก่น</option>
+                                <option value="ว อภัยภูเบศ">ว อภัยภูเบศ</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="date_faculty_received" class="col-form-label">วัน / เดือน / ปี
@@ -420,13 +491,23 @@ $result = $stmt->get_result();
                         <div class="mb-3">
                             <label for="book_number_HR" class="col-form-label">เลขที่หนังสือ
                                 นำส่งทรัพยากรบุคคล</label>
-                            <input type="text" class="form-control modal-text" id="book_number_HR"
-                                name="book_number_HR">
+                            <div class="d-flex flex-column flex-md-row align-items-center gap-2">
+                                <input type="date" class="form-control modal-text" id="book_number_HR_date"
+                                    name="book_number_HR_date">
+
+                                <input type="text" class="form-control modal-text" id="book_number_HR"
+                                    name="book_number_HR">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="passed_institution" class="col-form-label">ผ่านมติสภาสถาบันพระบรมราชชนก</label>
-                            <input type="text" class="form-control modal-text" id="passed_institution"
-                                name="passed_institution">
+                            <div class="d-flex flex-column flex-md-row align-items-center gap-2">
+                                <input type="date" class="form-control modal-text" id="passed_institution_date"
+                                    name="passed_institution_date">
+
+                                <input type="text" class="form-control modal-text" id="passed_institution"
+                                    name="passed_institution">
+                            </div>
                         </div>
 
                         <div class="modal-footer">
@@ -443,7 +524,7 @@ $result = $stmt->get_result();
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    //โชว์ modal
+//โชว์ modal
 $('#exampleModal').on('show.bs.modal', function(event) {
     var button = $(event.relatedTarget);
     var recipient = button.data('whatever');
@@ -454,54 +535,80 @@ $('#exampleModal').on('show.bs.modal', function(event) {
 });
 
 $(document).ready(function() {
-    $(document).ready(function() {
-        //แก้ไข
-        $(".edit-btn").on("click", function(e) {
-            e.preventDefault();
-            var id = $(this).data('id');
-            var registration_number = $(this).closest('tr').find('td:nth-child(1)').text()
-                .trim();
-            var fullname = $(this).closest('tr').find('td:nth-child(2)').text()
-                .trim();
-            var college = $(this).closest('tr').find('td:nth-child(3)').text()
-                .trim();
-            var date_faculty_received = $(this).closest('tr').find('td:nth-child(4)').text()
-                .trim();
-            var committee_approval_date = $(this).closest('tr').find('td:nth-child(5)').text()
-                .trim();
-            var faculty_approval_date = $(this).closest('tr').find('td:nth-child(6)').text()
-                .trim();
-            var book_number_HR = $(this).closest('tr').find('td:nth-child(7)').text()
-                .trim();
-            var passed_institution = $(this).closest('tr').find('td:nth-child(8)').text()
-                .trim();
 
-            function formatDateToInput(dateString) {
-                let dateParts = dateString.split('/');
-                let day = dateParts[0];
-                let month = dateParts[1] - 1;
-                let year = dateParts[2];
+    $('#exampleModal').on('hidden.bs.modal', function() {
+        $('#college').val('');
+    });
 
-                let formattedDate = new Date(year, month, day);
-                formattedDate.setDate(formattedDate.getDate() + 1);
-                let inputDate = formattedDate.toISOString().split('T')[0];
-                return inputDate;
+    //แก้ไข
+    $(document).on("click", ".edit-btn", function(e) {
+        e.preventDefault();
+
+        var id = $(this).data('id');
+        var row = $(this).closest('tr');
+
+        var registration_number = row.find('td').eq(0).text().trim();
+        var fullText = row.find('td').eq(1).text().trim();
+        var college = row.find('td').eq(2).text().trim();
+
+        var splitText = fullText.split(/\s+/);
+        var prefix = splitText.length > 1 ? splitText[0].trim() : "";
+        var fullname = splitText.slice(1).join(" ").trim();
+
+        var date_faculty_received = formatDateToInput(row.find('td').eq(3).text().trim());
+        var committee_approval_date = formatDateToInput(row.find('td').eq(4).text().trim());
+        var faculty_approval_date = formatDateToInput(row.find('td').eq(5).text().trim());
+
+        var full_book_number_HR = row.find('td').eq(6).text().trim();
+        var splitFullBookNumberHR = full_book_number_HR.split(/\s+/);
+        var book_number_HR_date = formatDateToInput(splitFullBookNumberHR[0].trim());
+        var book_number_HR = splitFullBookNumberHR.slice(1).join(" ").trim();
+
+        var full_passed_institution = row.find('td').eq(7).text().trim();
+        var splitFullPassedInstitution = full_passed_institution.split(/\s+/);
+        var passed_institution_date = formatDateToInput(splitFullPassedInstitution[0].trim());
+        var passed_institution = splitFullPassedInstitution.slice(1).join(" ").trim();
+
+        function formatDateToInput(dateString) {
+            console.log('book dateString', dateString);
+            if (!dateString || dateString === 'อยู่ระหว่างการตรวจสอบ' || dateString === 'NULL' ||
+                dateString === '0000-00-00') {
+                return '';
             }
 
-            $('#edit_id').val(id);
-            $('#edit_registration_number').val(registration_number);
-            $('#edit_fullname').val(fullname);
-            $('#edit_college').val(college);
-            $('#edit_date_faculty_received').val(formatDateToInput(date_faculty_received));
-            $('#edit_committee_approval_date').val(formatDateToInput(committee_approval_date));
-            $('#edit_faculty_approval_date').val(formatDateToInput(faculty_approval_date));
-            $('#edit_book_number_HR').val(book_number_HR);
-            $('#edit_passed_institution').val(passed_institution);
-            $('#editModal').modal('show');
-        });
+            let dateParts = dateString.split('/');
+            if (dateParts.length !== 3) return '';
+
+            let day = parseInt(dateParts[0], 10);
+            let month = parseInt(dateParts[1], 10);
+            let year = parseInt(dateParts[2], 10);
+
+            let formattedDate = new Date(year, month - 1, day);
+
+            let yyyy = formattedDate.getFullYear();
+            let mm = String(formattedDate.getMonth() + 1).padStart(2, '0');
+            let dd = String(formattedDate.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+
+        $('#edit_id').val(id);
+        $('#edit_registration_number').val(registration_number);
+        $('#edit_prefix').val(prefix);
+        $('#edit_fullname').val(fullname);
+        $('#edit_college').val(college);
+        $('#edit_date_faculty_received').val(date_faculty_received);
+        $('#edit_committee_approval_date').val(committee_approval_date);
+        $('#edit_faculty_approval_date').val(faculty_approval_date);
+        $('#edit_book_number_HR_date').val(book_number_HR_date);
+        $('#edit_book_number_HR').val(book_number_HR);
+        $('#edit_passed_institution_date').val(passed_institution_date);
+        $('#edit_passed_institution').val(passed_institution);
+
+        $('#editModal').modal('show');
     });
-//ลบ
-    $(".delete-btn").on("click", function(e) {
+    //ลบ
+    $(document).on("click", ".delete-btn", function(e) {
         e.preventDefault();
         var id = $(this).data('id');
         var registration_number = $(this).closest('tr').find('td:nth-child(1)').text();
@@ -536,16 +643,17 @@ $(document).ready(function() {
 
         $('#deleteModal').modal('show');
     });
-});
 
-$(document).ready(function() {
-//ช่องค้นหา
+    //ช่องค้นหา
     $('.search-name').on('keyup', function() {
         var searchValue = $(this).val().toLowerCase();
         $('table tbody tr').each(function() {
             var rowName = $(this).find('td:nth-child(2)').text()
                 .toLowerCase();
-            if (rowName.indexOf(searchValue) > -1) {
+            var rowCollege = $(this).find('td:nth-child(3)').text()
+                .toLowerCase(); // คอลัมน์วิทยาลัย
+
+            if (rowName.includes(searchValue) || rowCollege.includes(searchValue)) {
                 $(this).show();
             } else {
                 $(this).hide();
@@ -557,8 +665,7 @@ $(document).ready(function() {
         var rows = $('table tbody tr').get();
 
         rows.sort(function(a, b) {
-            var nameA = $(a).find('td:nth-child(2)').text()
-                .toLowerCase();
+            var nameA = $(a).find('td:nth-child(2)').text().toLowerCase();
             var nameB = $(b).find('td:nth-child(2)').text().toLowerCase();
 
             if (nameA < nameB) {

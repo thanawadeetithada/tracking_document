@@ -27,13 +27,24 @@ $rowIndex = 2;
 //ข้อมูลที่นำไปใส่
 while ($row = $result->fetch_assoc()) {
     $sheet->setCellValue('A' . $rowIndex, $row['registration_number']);
-    $sheet->setCellValue('B' . $rowIndex, $row['fullname']);
+    $sheet->setCellValue('B' . $rowIndex, $row['prefix'] . ' ' . $row['fullname']);
     $sheet->setCellValue('C' . $rowIndex, $row['college']);
     $sheet->setCellValue('D' . $rowIndex, !empty($row['date_faculty_received']) && $row['date_faculty_received'] !== '0000-00-00' ? date('d/m/Y', strtotime($row['date_faculty_received'])) : 'อยู่ระหว่างการตรวจสอบ');
     $sheet->setCellValue('E' . $rowIndex, !empty($row['committee_approval_date']) && $row['committee_approval_date'] !== '0000-00-00' ? date('d/m/Y', strtotime($row['committee_approval_date'])) : 'อยู่ระหว่างการตรวจสอบ');
     $sheet->setCellValue('F' . $rowIndex, !empty($row['faculty_approval_date']) && $row['faculty_approval_date'] !== '0000-00-00' ? date('d/m/Y', strtotime($row['faculty_approval_date'])) : 'อยู่ระหว่างการตรวจสอบ');
-    $sheet->setCellValue('G' . $rowIndex, !empty($row['book_number_HR']) ? $row['book_number_HR'] : 'อยู่ระหว่างการตรวจสอบ');
-    $sheet->setCellValue('H' . $rowIndex, !empty($row['passed_institution']) ? $row['passed_institution'] : 'อยู่ระหว่างการตรวจสอบ');    
+    
+    
+    $bookNumberHR = !empty($row['book_number_HR']) ? $row['book_number_HR'] : 'อยู่ระหว่างการตรวจสอบ';
+    $bookNumberHRDate = !empty($row['book_number_HR_date']) && $row['book_number_HR_date'] !== '0000-00-00' ? date('d/m/Y', strtotime($row['book_number_HR_date'])) : '';
+    $cellValue = $bookNumberHRDate ? $bookNumberHRDate . "\n" . $bookNumberHR : $bookNumberHR;
+    $sheet->setCellValueExplicit('G' . $rowIndex, $cellValue, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+    $sheet->getStyle('G' . $rowIndex)->getAlignment()->setWrapText(true);
+
+    $passedInstitution = !empty($row['passed_institution']) ? $row['passed_institution'] : 'อยู่ระหว่างการตรวจสอบ';
+    $passedInstitutionDate = !empty($row['passed_institution_date']) && $row['passed_institution_date'] !== '0000-00-00' ? date('d/m/Y', strtotime($row['passed_institution_date'])) : '';
+    $cellValue = $passedInstitutionDate ? $passedInstitutionDate . "\n" . $passedInstitution : $passedInstitution;
+    $sheet->setCellValueExplicit('H' . $rowIndex, $cellValue, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+    $sheet->getStyle('H' . $rowIndex)->getAlignment()->setWrapText(true);
     $rowIndex++;
 }
 

@@ -265,68 +265,6 @@ if ($userrole == 'admin' || $userrole == 'superadmin') {  //เช็ค role ad
             </div>
         </div>
     </div>
-
-    <!-- Modal เพิ่มข้อมูล -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <h5 class="modal-header">
-                    เพิ่มข้อมูล
-                </h5>
-                <div class="modal-body">
-                    <form method="post" action="insert_document.php">
-                        <div class="mb-3">
-                            <label for="egistration_number" class="col-form-label">เลขทะเบียนหนังสือ</label>
-                            <input type="text" class="form-control modal-text" id="egistration_number"
-                                name="egistration_number" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="fullname" class="col-form-label">ชื่อ-สกุล</label>
-                            <input class="form-control modal-text" id="fullname" name="fullname" required></input>
-                        </div>
-                        <div class="mb-3">
-                            <label for="college" class="col-form-label">วิทยาลัย</label>
-                            <input type="text" class="form-control modal-text" id="college" name="college" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="date_faculty_received" class="col-form-label">วัน / เดือน / ปี
-                                คณะรับเล่มผลงานทางวิชาการ</label>
-                            <input type="date" class="form-control modal-text" id="date_faculty_received"
-                                name="date_faculty_received">
-                        </div>
-                        <div class="mb-3">
-                            <label for="committee_approval_date" class="col-form-label">วัน / เดือน / ปี
-                                ผ่านอนุกรรมการตรวจสอบ</label>
-                            <input type="date" class="form-control modal-text" id="committee_approval_date"
-                                name="committee_approval_date">
-                        </div>
-                        <div class="mb-3">
-                            <label for="faculty_approval_date" class="col-form-label">วัน / เดือน / ปี
-                                ผ่านคณะกรรมการประจำ</label>
-                            <input type="date" class="form-control modal-text" id="faculty_approval_date"
-                                name="faculty_approval_date">
-                        </div>
-                        <div class="mb-3">
-                            <label for="book_number_HR" class="col-form-label">เลขที่หนังสือ
-                                นำส่งทรัพยากรบุคคล</label>
-                            <input type="text" class="form-control modal-text" id="book_number_HR"
-                                name="book_number_HR">
-                        </div>
-                        <div class="mb-3">
-                            <label for="passed_institution" class="col-form-label">ผ่านมติสภาสถาบันพระบรมราชชนก</label>
-                            <input type="text" class="form-control modal-text" id="passed_institution"
-                                name="passed_institution">
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                            <button type="submit" class="btn btn-primary">บันทึก</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 </body>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
