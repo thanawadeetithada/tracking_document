@@ -62,6 +62,27 @@ $conn->close();
         margin: 0;
         padding: 0;
         background-color: #f9fafc;
+        background-image: url('img/bg.png');
+
+    }
+
+    @media (min-width: 790px) {
+        body {
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+    }
+
+    @media (max-width: 790px) {
+        body {
+            background-size: 250%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #f8f5ff;
+        }
     }
 
     .login-container {
@@ -100,7 +121,7 @@ $conn->close();
         flex-direction: column;
         align-items: center;
         height: 100vh;
-        justify-content: center;
+        justify-content: space-around;
     }
 
     .form-group {
@@ -129,9 +150,7 @@ $conn->close();
     </script>
     <?php endif; ?>
     <div class="login-wrapper">
-    <img src="img/logo.png" alt="เอกสาร" >
-    <br>
-        <h2 class="login-title">ระบบติดตามความก้าวหน้า<br>ตำแหน่งทางวิชาการ</h2>
+        <br>
 
         <div class="login-container">
             <?php if (!empty($error_message)): ?>
