@@ -6,3 +6,5 @@ composer require phpoffice/phpspreadsheet
 * file connect database db.php
 
 * Name: tracking_db.sql
+
+ห้ามใช้ในเชิงพาณิชย์
