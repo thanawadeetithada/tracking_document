@@ -62,27 +62,6 @@ $conn->close();
         margin: 0;
         padding: 0;
         background-color: #f9fafc;
-        background-image: url('img/bg.png');
-
-    }
-
-    @media (min-width: 790px) {
-        body {
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
-    }
-
-    @media (max-width: 790px) {
-        body {
-            background-size: 250%;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-color: #f8f5ff;
-        }
     }
 
     .login-container {
@@ -121,7 +100,7 @@ $conn->close();
         flex-direction: column;
         align-items: center;
         height: 100vh;
-        justify-content: space-around;
+        justify-content: center;
     }
 
     .form-group {
@@ -146,11 +125,13 @@ $conn->close();
 <body>
     <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
     <script>
-    alert("ลงทะเบียนสำเร็จแล้ว กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ");
+     alert("ลงทะเบียนสำเร็จแล้ว กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ");
     </script>
     <?php endif; ?>
     <div class="login-wrapper">
+        <img src="img/logo.jpg" alt="Logo" width="150">
         <br>
+        <h2 class="login-title">ระบบติดตามความก้าวหน้า<br>ตำแหน่งทางวิชาการ</h2>
 
         <div class="login-container">
             <?php if (!empty($error_message)): ?>
