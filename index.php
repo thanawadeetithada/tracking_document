@@ -119,6 +119,16 @@ $conn->close();
     button {
         margin-top: 15px;
     }
+
+    .modal-btn button {
+        width: 30%;
+        margin: 5px;
+    }
+
+    .modal-btn {
+        display: flex;
+        justify-content: center;
+    }
     </style>
 </head>
 
@@ -152,10 +162,39 @@ $conn->close();
                 <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
             </form>
             <p>
-                <a href="register.php">ยังไม่มีบัญชี? ลงทะเบียนใหม่</a>
+            <a href="#" id="forgotPasswordLink" data-toggle="modal" data-target="#forgotPasswordModal">
+            ลืมรหัสผ่าน</a>
+             <br>   <a href="register.php">ยังไม่มีบัญชี? ลงทะเบียนใหม่</a>
             </p>
         </div>
     </div>
+
+      <div class="modal fade" id="forgotPasswordModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content modal">
+                <div class="modal-header align-items-center">
+                    <h5 class="modal-title mx-auto">ลืมรหัสผ่าน</h5>
+                </div>
+                <div class="modal-body px-4">
+                    <form id="forgotPasswordForm" method="POST" action="process_forgot_password.php">
+                        <div class="form-group">
+                            <input type="email" name="email" class="form-control rounded-pill"
+                                placeholder="กรุณาใส่อีเมล" required>
+                        </div>
+                        <div class="modal-btn">
+                            <button type="submit" class="btn btn-primary">ตกลง</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">ยกเลิก</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+
+
 </body>
 
 </html>
