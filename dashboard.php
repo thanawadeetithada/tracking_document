@@ -198,7 +198,19 @@ $result = $stmt->get_result();
                 <div class="tab-func">
                     <button type="button" class="btn btn-success btn-m btn-header"
                         onclick="window.location.href='download_excel.php';">
-                        <i class="fa-solid fa-file-medical"></i> ดาวโหลด
+                        <i class="fa-solid fa-file-arrow-down"></i> ดาวโหลด
+                    </button>
+                </div>
+                <form id="uploadForm" action="import_download_excel.php" method="post" enctype="multipart/form-data"
+                    style="display: none;">
+                    <input type="file" id="excel_file" name="excel_file" accept=".xlsx, .xls"
+                        onchange="submitFormOnFileSelect()">
+                </form>
+
+                <div class="tab-func">
+                    <button type="button" class="btn btn-success btn-m btn-header"
+                        onclick="document.getElementById('excel_file').click();">
+                        <i class="fa-solid fa-file-medical"></i> เพิ่มข้อมูล
                     </button>
                 </div>
                 <div class="tab-func">
@@ -688,6 +700,14 @@ $(document).ready(function() {
         sortTableByName();
     });
 });
+
+function triggerFileInput() {
+    document.getElementById('excel_file').click();
+}
+
+function submitFormOnFileSelect() {
+    document.getElementById('uploadForm').submit();
+}
 </script>
 
 </html>
