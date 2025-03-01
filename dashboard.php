@@ -364,6 +364,12 @@ $result = $stmt->get_result();
                                 <option value="นางสาว"
                                     <?php echo (isset($prefix) && $prefix == "นางสาว") ? "selected" : ""; ?>>
                                     นางสาว</option>
+                                <option value="สิบเอก"
+                                    <?php echo (isset($prefix) && $prefix == "สิบเอก") ? "selected" : ""; ?>>สิบเอก
+                                </option>
+                                <option value="ผู้ช่วยศาสตราจารย์"
+                                    <?php echo (isset($prefix) && $prefix == "ผู้ช่วยศาสตราจารย์") ? "selected" : ""; ?>>ผู้ช่วยศาสตราจารย์
+                                </option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -462,7 +468,16 @@ $result = $stmt->get_result();
                                 </option>
                                 <option value="นางสาว"
                                     <?php echo (isset($prefix) && $prefix == "นางสาว") ? "selected" : ""; ?>>
-                                    นางสาว</option>
+                                    นางสาว
+                                </option>
+                                <option value="สิบเอก"
+                                    <?php echo (isset($prefix) && $prefix == "สิบเอก") ? "selected" : ""; ?>>
+                                    สิบเอก
+                                </option>
+                                <option value="ผู้ช่วยศาสตราจารย์"
+                                    <?php echo (isset($prefix) && $prefix == "ผู้ช่วยศาสตราจารย์") ? "selected" : ""; ?>>
+                                    ผู้ช่วยศาสตราจารย์
+                                </option>
                             </select>
                         </div>
                         <div class="mb-3">

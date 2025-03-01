@@ -238,6 +238,8 @@ if ($userrole == 'admin' || $userrole == 'superadmin') {  //เช็ค role ad
                                 <option value="นาย">นาย</option>
                                 <option value="นาง">นาง</option>
                                 <option value="นางสาว">นางสาว</option>
+                                <option value="สิบเอก">สิบเอก</option>
+                                <option value="ผู้ช่วยศาสตราจารย์">ผู้ช่วยศาสตราจารย์</option>
                             </select>
                         </div>
                         <div class="mb-3">
